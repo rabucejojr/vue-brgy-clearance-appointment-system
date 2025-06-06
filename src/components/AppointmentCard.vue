@@ -1,113 +1,136 @@
 <template>
-  <div class="appointment-card" :class="[statusClass, { 'clickable': clickable }]" @click="handleClick">
-    <div class="card-header">
-      <div class="appointment-info">
-        <h3 class="appointment-title">{{ fullName }}</h3>
-        <span class="reference-number">Ref: {{ appointment.referenceNumber }}</span>
-      </div>
-      <div class="appointment-status">
-        <span class="status-badge" :class="statusClass">{{ statusText }}</span>
-      </div>
-    </div>
-
-    <div class="card-body">
-      <div class="appointment-details">
-        <div class="detail-item">
-          <i class="icon-calendar"></i>
-          <div class="detail-content">
-            <label>Date & Time</label>
-            <span>{{ formattedDateTime }}</span>
+  <div class="card hover:shadow-xl transition-all duration-300 border-l-4" 
+       :class="`border-l-${statusConfig.dotClass.split('-')[1]}-400`">
+    <div class="p-6">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+            {{ appointment.firstName?.charAt(0) }}{{ appointment.lastName?.charAt(0) }}
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-secondary-900">{{ getFullName(appointment) }}</h3>
+            <p class="text-sm text-secondary-600 font-mono">{{ appointment.referenceNumber }}</p>
           </div>
         </div>
-
-        <div class="detail-item">
-          <i class="icon-purpose"></i>
-          <div class="detail-content">
-            <label>Purpose</label>
-            <span>{{ appointment.purpose }}</span>
-          </div>
-        </div>
-
-        <div class="detail-item">
-          <i class="icon-phone"></i>
-          <div class="detail-content">
-            <label>Contact</label>
-            <span>{{ appointment.phoneNumber }}</span>
-          </div>
-        </div>
-
-        <div v-if="appointment.email" class="detail-item">
-          <i class="icon-email"></i>
-          <div class="detail-content">
-            <label>Email</label>
-            <span>{{ appointment.email }}</span>
-          </div>
+        
+        <div class="flex items-center space-x-2">
+          <span :class="statusConfig.bgClass" 
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border">
+            <span :class="statusConfig.dotClass" class="w-2 h-2 rounded-full mr-2"></span>
+            {{ statusConfig.label }}
+          </span>
         </div>
       </div>
 
-      <div v-if="showAddress" class="address-section">
-        <div class="detail-item">
-          <i class="icon-location"></i>
-          <div class="detail-content">
-            <label>Address</label>
-            <span>{{ appointment.address }}</span>
+      <!-- Appointment Details -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Date & Time -->
+        <div class="space-y-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span class="text-blue-600">📅</span>
+            </div>
+            <div>
+              <p class="text-sm text-secondary-600">Appointment Date</p>
+              <p class="font-medium text-secondary-900">{{ formatDate(appointment.preferredDate) }}</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <span class="text-green-600">⏰</span>
+            </div>
+            <div>
+              <p class="text-sm text-secondary-600">Time Slot</p>
+              <p class="font-medium text-secondary-900">{{ formatTime(appointment.preferredTime) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Purpose & Personal Info -->
+        <div class="space-y-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+              <span class="text-purple-600">🎯</span>
+            </div>
+            <div>
+              <p class="text-sm text-secondary-600">Purpose</p>
+              <p class="font-medium text-secondary-900">
+                {{ appointment.purpose === 'Other' ? appointment.otherPurpose : appointment.purpose }}
+              </p>
+            </div>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+              <span class="text-orange-600">👤</span>
+            </div>
+            <div>
+              <p class="text-sm text-secondary-600">Personal Details</p>
+              <p class="font-medium text-secondary-900">{{ appointment.gender }}, {{ appointment.civilStatus }}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div v-if="appointment.specialNotes" class="notes-section">
-        <div class="detail-item">
-          <i class="icon-notes"></i>
-          <div class="detail-content">
-            <label>Special Notes</label>
-            <span>{{ appointment.specialNotes }}</span>
+      <!-- Contact Information -->
+      <div class="bg-secondary-50 rounded-lg p-4 mb-6">
+        <h4 class="text-sm font-semibold text-secondary-900 mb-3 flex items-center">
+          <span class="mr-2">📱</span>
+          Contact Information
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div>
+            <p class="text-secondary-600">Phone</p>
+            <p class="font-medium text-secondary-900">{{ appointment.phoneNumber }}</p>
+          </div>
+          <div>
+            <p class="text-secondary-600">Email</p>
+            <p class="font-medium text-secondary-900 break-all">{{ appointment.email }}</p>
+          </div>
+          <div class="sm:col-span-2">
+            <p class="text-secondary-600">Address</p>
+            <p class="font-medium text-secondary-900">{{ appointment.address }}</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="showActions" class="card-actions">
-      <button 
-        v-if="canConfirm" 
-        @click.stop="handleAction('confirm')" 
-        class="btn btn-success"
-      >
-        Confirm
-      </button>
-      <button 
-        v-if="canReschedule" 
-        @click.stop="handleAction('reschedule')" 
-        class="btn btn-warning"
-      >
-        Reschedule
-      </button>
-      <button 
-        v-if="canCancel" 
-        @click.stop="handleAction('cancel')" 
-        class="btn btn-danger"
-      >
-        Cancel
-      </button>
-      <button 
-        v-if="canComplete" 
-        @click.stop="handleAction('complete')" 
-        class="btn btn-primary"
-      >
-        Mark Complete
-      </button>
-      <button 
-        v-if="showDetails" 
-        @click.stop="handleAction('details')" 
-        class="btn btn-info"
-      >
-        View Details
-      </button>
-    </div>
+      <!-- Special Notes -->
+      <div v-if="appointment.specialNotes" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h4 class="text-sm font-semibold text-blue-900 mb-2 flex items-center">
+          <span class="mr-2">📝</span>
+          Special Notes
+        </h4>
+        <p class="text-sm text-blue-800">{{ appointment.specialNotes }}</p>
+      </div>
 
-    <div v-if="showTimestamp" class="card-footer">
-      <small class="timestamp">
-        {{ appointment.createdAt ? `Submitted: ${formatTimestamp(appointment.createdAt)}` : '' }}
-      </small>
+      <!-- Timestamps -->
+      <div class="flex flex-wrap items-center gap-4 text-xs text-secondary-500 mb-6">
+        <div class="flex items-center space-x-1">
+          <span>📅</span>
+          <span>Submitted: {{ formatDate(appointment.createdAt) }}</span>
+        </div>
+        <div v-if="appointment.updatedAt" class="flex items-center space-x-1">
+          <span>🔄</span>
+          <span>Updated: {{ formatDate(appointment.updatedAt) }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div v-if="showActions && availableActions.length > 0" 
+           class="flex flex-wrap gap-2 pt-4 border-t border-secondary-200">
+        <button
+          v-for="action in availableActions"
+          :key="action.action"
+          @click="handleAction(action.action)"
+          :class="action.class"
+          class="flex items-center space-x-1 font-medium transition-all duration-200 hover:scale-105"
+        >
+          <span>{{ action.icon }}</span>
+          <span>{{ action.name }}</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -121,132 +144,156 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  userRole: {
+    type: String,
+    default: 'user'
+  },
   showActions: {
     type: Boolean,
     default: true
-  },
-  showAddress: {
-    type: Boolean,
-    default: false
-  },
-  showTimestamp: {
-    type: Boolean,
-    default: true
-  },
-  clickable: {
-    type: Boolean,
-    default: false
   }
 })
 
 // Emits
-const emit = defineEmits([
-  'action-clicked',
-  'card-clicked',
-  'confirm',
-  'reschedule', 
-  'cancel',
-  'complete',
-  'details'
-])
+const emit = defineEmits(['confirm', 'reschedule', 'cancel', 'complete'])
 
-// Computed properties
-const fullName = computed(() => {
-  const { firstName, lastName, middleName, suffix } = props.appointment
-  let name = `${firstName} ${lastName}`
-  if (middleName) name = `${firstName} ${middleName} ${lastName}`
-  if (suffix) name += ` ${suffix}`
-  return name
-})
-
-const formattedDateTime = computed(() => {
-  const { preferredDate, preferredTime } = props.appointment
-  if (!preferredDate || !preferredTime) return 'Not specified'
-  
-  const date = new Date(preferredDate)
-  const dateStr = date.toLocaleDateString('en-US', { 
-    weekday: 'short',
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  })
-  
-  // Format time from 24-hour to 12-hour format
-  const [startTime] = preferredTime.split('-')
-  const [hours, minutes] = startTime.split(':')
-  const hour = parseInt(hours)
-  const ampm = hour >= 12 ? 'PM' : 'AM'
-  const displayHour = hour % 12 || 12
-  
-  return `${dateStr}, ${displayHour}:${minutes} ${ampm}`
-})
-
-const statusClass = computed(() => {
-  const status = props.appointment.status?.toLowerCase() || 'pending'
-  return `status-${status}`
-})
-
-const statusText = computed(() => {
-  const status = props.appointment.status || 'Pending'
-  const statusMap = {
-    'pending': 'Pending',
-    'confirmed': 'Confirmed',
-    'completed': 'Completed',
-    'cancelled': 'Cancelled',
-    'rescheduled': 'Rescheduled',
-    'no_show': 'No Show'
+// Computed
+const statusConfig = computed(() => {
+  const configs = {
+    pending: {
+      label: 'Pending',
+      bgClass: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      dotClass: 'bg-yellow-400',
+      icon: '⏳'
+    },
+    confirmed: {
+      label: 'Confirmed',
+      bgClass: 'bg-blue-100 text-blue-800 border-blue-200',
+      dotClass: 'bg-blue-400',
+      icon: '✅'
+    },
+    completed: {
+      label: 'Completed',
+      bgClass: 'bg-green-100 text-green-800 border-green-200',
+      dotClass: 'bg-green-400',
+      icon: '✓'
+    },
+    cancelled: {
+      label: 'Cancelled',
+      bgClass: 'bg-red-100 text-red-800 border-red-200',
+      dotClass: 'bg-red-400',
+      icon: '✕'
+    },
+    rescheduled: {
+      label: 'Rescheduled',
+      bgClass: 'bg-purple-100 text-purple-800 border-purple-200',
+      dotClass: 'bg-purple-400',
+      icon: '🔄'
+    }
   }
-  return statusMap[status.toLowerCase()] || status
+  return configs[props.appointment.status] || configs.pending
 })
 
-// Action permissions based on status
-const canConfirm = computed(() => {
-  const status = props.appointment.status?.toLowerCase()
-  return status === 'pending'
+const availableActions = computed(() => {
+  const actions = []
+  
+  if (props.userRole === 'staff' || props.userRole === 'admin') {
+    if (props.appointment.status === 'pending') {
+      actions.push(
+        { 
+          name: 'Confirm', 
+          action: 'confirm', 
+          class: 'btn-primary text-sm py-1 px-3',
+          icon: '✓' 
+        },
+        { 
+          name: 'Reschedule', 
+          action: 'reschedule', 
+          class: 'btn-secondary text-sm py-1 px-3',
+          icon: '📅' 
+        },
+        { 
+          name: 'Cancel', 
+          action: 'cancel', 
+          class: 'bg-red-100 hover:bg-red-200 text-red-700 text-sm py-1 px-3 rounded-lg transition-colors',
+          icon: '✕' 
+        }
+      )
+    } else if (props.appointment.status === 'confirmed') {
+      actions.push(
+        { 
+          name: 'Complete', 
+          action: 'complete', 
+          class: 'btn-primary text-sm py-1 px-3',
+          icon: '✓' 
+        },
+        { 
+          name: 'Reschedule', 
+          action: 'reschedule', 
+          class: 'btn-secondary text-sm py-1 px-3',
+          icon: '📅' 
+        }
+      )
+    }
+  } else if (props.userRole === 'user') {
+    if (props.appointment.status === 'pending' || props.appointment.status === 'confirmed') {
+      actions.push(
+        { 
+          name: 'Reschedule', 
+          action: 'reschedule', 
+          class: 'btn-secondary text-sm py-1 px-3',
+          icon: '📅' 
+        },
+        { 
+          name: 'Cancel', 
+          action: 'cancel', 
+          class: 'bg-red-100 hover:bg-red-200 text-red-700 text-sm py-1 px-3 rounded-lg transition-colors',
+          icon: '✕' 
+        }
+      )
+    }
+  }
+  
+  return actions
 })
 
-const canReschedule = computed(() => {
-  const status = props.appointment.status?.toLowerCase()
-  return ['pending', 'confirmed'].includes(status)
-})
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
 
-const canCancel = computed(() => {
-  const status = props.appointment.status?.toLowerCase()
-  return ['pending', 'confirmed'].includes(status)
-})
+const formatTime = (timeString) => {
+  if (!timeString.includes('-')) return timeString
+  
+  const [start, end] = timeString.split('-')
+  const formatTimeString = (time) => {
+    const [hours, minutes] = time.split(':')
+    const hour = parseInt(hours)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const displayHour = hour % 12 || 12
+    return `${displayHour}:${minutes} ${ampm}`
+  }
+  
+  return `${formatTimeString(start)} - ${formatTimeString(end)}`
+}
 
-const canComplete = computed(() => {
-  const status = props.appointment.status?.toLowerCase()
-  return status === 'confirmed'
-})
-
-const showDetails = computed(() => {
-  return true // Always show details button
-})
+const getFullName = (appointment) => {
+  const parts = [
+    appointment.firstName,
+    appointment.middleName,
+    appointment.lastName,
+    appointment.suffix
+  ].filter(Boolean)
+  
+  return parts.join(' ')
+}
 
 // Methods
-const handleClick = () => {
-  if (props.clickable) {
-    emit('card-clicked', props.appointment)
-  }
-}
-
 const handleAction = (action) => {
-  // Emit both generic and specific events
-  emit('action-clicked', { action, appointment: props.appointment })
   emit(action, props.appointment)
-}
-
-const formatTimestamp = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 </script>
 

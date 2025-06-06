@@ -203,7 +203,7 @@ defineExpose({
 </script>
 
 <template>
-  <div id="app">
+  <div id="app" class="w-full min-h-screen flex flex-col bg-app">
     <Navigation
       :user-role="userRole"
       :is-authenticated="isAuthenticated"
@@ -213,7 +213,7 @@ defineExpose({
       @logout="handleLogout"
     />
     
-    <main class="main-content">
+    <main class="flex-1 w-full min-h-[calc(100vh-80px)] overflow-x-hidden">
       <RouterView 
         :appointments="appointments"
         :user-role="userRole"
@@ -230,459 +230,48 @@ defineExpose({
     </main>
 
     <!-- Toast Notifications -->
-    <div v-if="notification" class="notification" :class="notification.type">
-      <div class="notification-content">
-        <span class="notification-icon">{{ notification.icon }}</span>
-        <span class="notification-message">{{ notification.message }}</span>
-        <button @click="clearNotification" class="notification-close">×</button>
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="transform translate-x-full opacity-0"
+      enter-to-class="transform translate-x-0 opacity-100"
+      leave-active-class="transition-all duration-300 ease-in"
+      leave-from-class="transform translate-x-0 opacity-100"
+      leave-to-class="transform translate-x-full opacity-0"
+    >
+      <div 
+        v-if="notification" 
+        :class="[
+          'fixed top-20 right-4 left-4 sm:left-auto sm:right-6 sm:max-w-md z-[9999]',
+          'rounded-xl shadow-2xl backdrop-blur-sm',
+          'notification-' + notification.type
+        ]"
+      >
+        <div class="flex items-center gap-3 p-4">
+          <span class="text-xl flex-shrink-0">{{ notification.icon }}</span>
+          <span class="flex-1 font-medium leading-tight text-responsive">{{ notification.message }}</span>
+          <button 
+            @click="clearNotification" 
+            class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors duration-200 text-xl leading-none"
+          >
+            ×
+          </button>
+        </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
-<style>
-/* Global Reset & Fullscreen Setup */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-}
-
-html {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.6;
-  color: #2c3e50;
-  font-size: 16px;
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  background-attachment: fixed;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-}
-
-#app {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.main-content {
-  flex: 1;
-  width: 100%;
-  min-height: calc(100vh - 80px); /* Account for navigation height */
-  padding: 0;
-  background: transparent;
-  overflow-x: hidden;
-}
-
-/* Responsive Container */
-.container {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* Notification System - Enhanced Responsive */
-.notification {
-  position: fixed;
-  top: 90px;
-  right: 20px;
-  z-index: 9999;
-  max-width: 400px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  animation: slideInRight 0.3s ease-out;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.notification.success {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
-}
-
-.notification.error {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  color: white;
-}
-
-.notification.warning {
-  background: linear-gradient(135deg, #ffc107, #e0a800);
-  color: #212529;
-}
-
-.notification.info {
-  background: linear-gradient(135deg, #17a2b8, #138496);
-  color: white;
-}
-
-.notification-content {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-}
-
-.notification-icon {
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
-
-.notification-message {
-  flex: 1;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-.notification-close {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: 1.5rem;
-  line-height: 1;
-  opacity: 0.8;
-  transition: opacity 0.2s ease;
-  padding: 2px;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.notification-close:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* Responsive Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  line-height: 1.3;
-  margin: 0;
-}
-
-h1 { font-size: clamp(1.75rem, 4vw, 3.5rem); }
-h2 { font-size: clamp(1.5rem, 3.5vw, 2.5rem); }
-h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
-h4 { font-size: clamp(1.1rem, 2.5vw, 1.5rem); }
-h5 { font-size: clamp(1rem, 2vw, 1.25rem); }
-h6 { font-size: clamp(0.9rem, 1.5vw, 1.1rem); }
-
-p {
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* Responsive Breakpoints */
-/* Mobile First - Base styles for mobile (320px+) */
-@media (max-width: 480px) {
-  html {
-    font-size: 14px;
-  }
-  
-  .container {
-    padding: 0 0.75rem;
-  }
-  
+<style scoped>
+/* Only keep essential styles that can't be replicated with Tailwind */
+@media (max-width: 640px) {
   .main-content {
     min-height: calc(100vh - 60px);
   }
-  
-  .notification {
-    top: 70px;
-    right: 10px;
-    left: 10px;
-    max-width: none;
-    border-radius: 8px;
-  }
-  
-  .notification-content {
-    padding: 0.75rem 1rem;
-    gap: 0.5rem;
-  }
-  
-  .notification-icon {
-    font-size: 1rem;
-  }
-  
-  .notification-message {
-    font-size: 0.9rem;
-  }
 }
 
-/* Small Mobile (375px+) */
-@media (min-width: 375px) and (max-width: 600px) {
-  .container {
-    padding: 0 1rem;
-  }
-}
-
-/* Tablet Portrait (601px+) */
-@media (min-width: 601px) and (max-width: 768px) {
-  .container {
-    padding: 0 1.5rem;
-  }
-  
-  .notification {
-    max-width: 350px;
-  }
-}
-
-/* Tablet Landscape (769px+) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .container {
-    padding: 0 2rem;
-  }
-  
-  .notification {
-    max-width: 400px;
-    top: 100px;
-  }
-}
-
-/* Desktop Small (1025px+) */
-@media (min-width: 1025px) and (max-width: 1200px) {
-  .container {
-    max-width: 1000px;
-  }
-}
-
-/* Desktop Medium (1201px+) */
-@media (min-width: 1201px) and (max-width: 1400px) {
-  .container {
-    max-width: 1200px;
-  }
-}
-
-/* Desktop Large (1401px+) */
-@media (min-width: 1401px) {
-  .container {
-    max-width: 1400px;
-    padding: 0 2rem;
-  }
-}
-
-/* High DPI / Retina Displays */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-/* Landscape Orientation */
 @media (orientation: landscape) and (max-height: 600px) {
   .main-content {
     min-height: calc(100vh - 60px);
   }
-  
-  .notification {
-    top: 70px;
-  }
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-/* Global Utility Classes - Enhanced */
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
-
-/* Responsive Spacing */
-.mb-1 { margin-bottom: clamp(0.25rem, 1vw, 0.5rem); }
-.mb-2 { margin-bottom: clamp(0.5rem, 2vw, 1rem); }
-.mb-3 { margin-bottom: clamp(1rem, 3vw, 1.5rem); }
-.mb-4 { margin-bottom: clamp(1.5rem, 4vw, 2rem); }
-.mb-5 { margin-bottom: clamp(2rem, 5vw, 3rem); }
-
-.mt-1 { margin-top: clamp(0.25rem, 1vw, 0.5rem); }
-.mt-2 { margin-top: clamp(0.5rem, 2vw, 1rem); }
-.mt-3 { margin-top: clamp(1rem, 3vw, 1.5rem); }
-.mt-4 { margin-top: clamp(1.5rem, 4vw, 2rem); }
-.mt-5 { margin-top: clamp(2rem, 5vw, 3rem); }
-
-.p-1 { padding: clamp(0.25rem, 1vw, 0.5rem); }
-.p-2 { padding: clamp(0.5rem, 2vw, 1rem); }
-.p-3 { padding: clamp(1rem, 3vw, 1.5rem); }
-.p-4 { padding: clamp(1.5rem, 4vw, 2rem); }
-.p-5 { padding: clamp(2rem, 5vw, 3rem); }
-
-/* Layout Utilities */
-.d-flex { display: flex; }
-.d-block { display: block; }
-.d-none { display: none; }
-.d-grid { display: grid; }
-
-.flex-column { flex-direction: column; }
-.flex-row { flex-direction: row; }
-.flex-wrap { flex-wrap: wrap; }
-.flex-nowrap { flex-wrap: nowrap; }
-
-.justify-start { justify-content: flex-start; }
-.justify-center { justify-content: center; }
-.justify-end { justify-content: flex-end; }
-.justify-between { justify-content: space-between; }
-.justify-around { justify-content: space-around; }
-
-.align-start { align-items: flex-start; }
-.align-center { align-items: center; }
-.align-end { align-items: flex-end; }
-.align-stretch { align-items: stretch; }
-
-.w-full { width: 100%; }
-.w-auto { width: auto; }
-.h-full { height: 100%; }
-.h-auto { height: auto; }
-
-/* Responsive Visibility */
-.hidden-mobile { display: block; }
-.hidden-tablet { display: block; }
-.hidden-desktop { display: block; }
-
-@media (max-width: 768px) {
-  .hidden-mobile { display: none !important; }
-  .visible-mobile { display: block !important; }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .hidden-tablet { display: none !important; }
-  .visible-tablet { display: block !important; }
-}
-
-@media (min-width: 1025px) {
-  .hidden-desktop { display: none !important; }
-  .visible-desktop { display: block !important; }
-}
-
-/* Focus and Accessibility */
-*:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
-}
-
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
-}
-
-/* Skip Link for Accessibility */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 6px;
-  background: #000;
-  color: #fff;
-  padding: 8px;
-  text-decoration: none;
-  border-radius: 4px;
-  z-index: 10000;
-}
-
-.skip-link:focus {
-  top: 6px;
-}
-
-/* Print Styles */
-@media print {
-  .notification,
-  .no-print {
-    display: none !important;
-  }
-  
-  body {
-    background: white !important;
-  }
-  
-  * {
-    box-shadow: none !important;
-  }
-}
-
-/* Selection Styling */
-::selection {
-  background: rgba(0, 123, 255, 0.2);
-  color: inherit;
-}
-
-::-moz-selection {
-  background: rgba(0, 123, 255, 0.2);
-  color: inherit;
-}
-
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-/* Firefox Scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.1);
 }
 </style>

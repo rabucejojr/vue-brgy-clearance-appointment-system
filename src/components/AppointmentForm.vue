@@ -1,52 +1,80 @@
 <template>
-  <div class="appointment-form">
-    <div class="form-header">
-      <h2>Book Barangay Clearance Appointment</h2>
-      <p>Please fill in the required information to schedule your appointment</p>
+  <div class="max-w-4xl mx-auto container-full py-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-2">Book an Appointment</h1>
+      <p class="text-responsive text-secondary-600">Complete the form below to schedule your barangay clearance appointment</p>
     </div>
 
-    <form @submit.prevent="submitForm" class="form-container">
-      <!-- Personal Information Section -->
-      <div class="form-section">
-        <h3>Personal Information</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="firstName">First Name *</label>
+    <!-- Progress Bar -->
+    <div class="bg-white rounded-xl shadow-sm border border-secondary-200 p-6 mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-medium text-secondary-700">Step {{ currentStep }} of 3</span>
+        <span class="text-sm font-medium text-primary-600">{{ formProgress }}% Complete</span>
+      </div>
+      <div class="w-full bg-secondary-200 rounded-full h-3">
+        <div 
+          class="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-500 ease-out"
+          :style="`width: ${formProgress}%`"
+        ></div>
+      </div>
+      <div class="flex justify-between mt-4 text-sm">
+        <span :class="currentStep >= 1 ? 'text-primary-600 font-medium' : 'text-secondary-500'">Personal Info</span>
+        <span :class="currentStep >= 2 ? 'text-primary-600 font-medium' : 'text-secondary-500'">Contact Details</span>
+        <span :class="currentStep >= 3 ? 'text-primary-600 font-medium' : 'text-secondary-500'">Appointment</span>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form @submit.prevent="submitForm" class="space-y-8">
+      <!-- Step 1: Personal Information -->
+      <div v-show="currentStep === 1" class="card p-6 md:p-8">
+        <h2 class="text-xl md:text-2xl font-semibold text-secondary-900 mb-6 flex items-center">
+          <span class="text-2xl mr-3">👤</span>
+          Personal Information
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">First Name *</label>
             <input
-              id="firstName"
               v-model="formData.firstName"
               type="text"
               required
-              :class="{ error: errors.firstName }"
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.firstName }"
+              placeholder="Enter your first name"
             />
-            <span v-if="errors.firstName" class="error-message">{{ errors.firstName }}</span>
+            <p v-if="errors.firstName" class="mt-1 text-sm text-red-600">{{ errors.firstName }}</p>
           </div>
-          <div class="form-group">
-            <label for="lastName">Last Name *</label>
+
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Last Name *</label>
             <input
-              id="lastName"
               v-model="formData.lastName"
               type="text"
               required
-              :class="{ error: errors.lastName }"
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.lastName }"
+              placeholder="Enter your last name"
             />
-            <span v-if="errors.lastName" class="error-message">{{ errors.lastName }}</span>
+            <p v-if="errors.lastName" class="mt-1 text-sm text-red-600">{{ errors.lastName }}</p>
           </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="middleName">Middle Name</label>
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Middle Name</label>
             <input
-              id="middleName"
               v-model="formData.middleName"
               type="text"
+              class="input-field"
+              placeholder="Enter your middle name"
             />
           </div>
-          <div class="form-group">
-            <label for="suffix">Suffix</label>
-            <select id="suffix" v-model="formData.suffix">
-              <option value="">Select Suffix</option>
+
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Suffix</label>
+            <select v-model="formData.suffix" class="input-field">
+              <option value="">Select suffix</option>
               <option value="Jr.">Jr.</option>
               <option value="Sr.">Sr.</option>
               <option value="II">II</option>
@@ -54,120 +82,142 @@
               <option value="IV">IV</option>
             </select>
           </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="birthDate">Date of Birth *</label>
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Birth Date *</label>
             <input
-              id="birthDate"
               v-model="formData.birthDate"
               type="date"
               required
-              :class="{ error: errors.birthDate }"
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.birthDate }"
             />
-            <span v-if="errors.birthDate" class="error-message">{{ errors.birthDate }}</span>
+            <p v-if="errors.birthDate" class="mt-1 text-sm text-red-600">{{ errors.birthDate }}</p>
           </div>
-          <div class="form-group">
-            <label for="gender">Gender *</label>
-            <select id="gender" v-model="formData.gender" required :class="{ error: errors.gender }">
-              <option value="">Select Gender</option>
+
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Gender *</label>
+            <select 
+              v-model="formData.gender" 
+              required 
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.gender }"
+            >
+              <option value="">Select gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
-            <span v-if="errors.gender" class="error-message">{{ errors.gender }}</span>
+            <p v-if="errors.gender" class="mt-1 text-sm text-red-600">{{ errors.gender }}</p>
           </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="civilStatus">Civil Status *</label>
-            <select id="civilStatus" v-model="formData.civilStatus" required :class="{ error: errors.civilStatus }">
-              <option value="">Select Civil Status</option>
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Civil Status *</label>
+            <select 
+              v-model="formData.civilStatus" 
+              required 
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.civilStatus }"
+            >
+              <option value="">Select civil status</option>
               <option value="Single">Single</option>
               <option value="Married">Married</option>
-              <option value="Widowed">Widowed</option>
-              <option value="Separated">Separated</option>
               <option value="Divorced">Divorced</option>
+              <option value="Widowed">Widowed</option>
             </select>
-            <span v-if="errors.civilStatus" class="error-message">{{ errors.civilStatus }}</span>
+            <p v-if="errors.civilStatus" class="mt-1 text-sm text-red-600">{{ errors.civilStatus }}</p>
           </div>
-          <div class="form-group">
-            <label for="nationality">Nationality *</label>
+
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Nationality</label>
             <input
-              id="nationality"
               v-model="formData.nationality"
               type="text"
-              required
-              :class="{ error: errors.nationality }"
-              placeholder="e.g., Filipino"
+              class="input-field"
+              placeholder="Enter your nationality"
             />
-            <span v-if="errors.nationality" class="error-message">{{ errors.nationality }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Contact Information Section -->
-      <div class="form-section">
-        <h3>Contact Information</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="phoneNumber">Phone Number *</label>
+      <!-- Step 2: Contact Information -->
+      <div v-show="currentStep === 2" class="card p-6 md:p-8">
+        <h2 class="text-xl md:text-2xl font-semibold text-secondary-900 mb-6 flex items-center">
+          <span class="text-2xl mr-3">📱</span>
+          Contact Information
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Phone Number *</label>
             <input
-              id="phoneNumber"
               v-model="formData.phoneNumber"
               type="tel"
               required
-              :class="{ error: errors.phoneNumber }"
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.phoneNumber }"
               placeholder="09XXXXXXXXX"
             />
-            <span v-if="errors.phoneNumber" class="error-message">{{ errors.phoneNumber }}</span>
+            <p v-if="errors.phoneNumber" class="mt-1 text-sm text-red-600">{{ errors.phoneNumber }}</p>
           </div>
-          <div class="form-group">
-            <label for="email">Email Address</label>
+
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Email Address *</label>
             <input
-              id="email"
               v-model="formData.email"
               type="email"
+              required
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.email }"
               placeholder="your.email@example.com"
             />
+            <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="address">Complete Address *</label>
-          <textarea
-            id="address"
-            v-model="formData.address"
-            required
-            :class="{ error: errors.address }"
-            placeholder="House No., Street, Subdivision/Village, City/Municipality, Province"
-            rows="3"
-          ></textarea>
-          <span v-if="errors.address" class="error-message">{{ errors.address }}</span>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Complete Address *</label>
+            <textarea
+              v-model="formData.address"
+              required
+              rows="3"
+              class="input-field resize-none"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.address }"
+              placeholder="Enter your complete address including house number, street, barangay, city, and province"
+            ></textarea>
+            <p v-if="errors.address" class="mt-1 text-sm text-red-600">{{ errors.address }}</p>
+          </div>
         </div>
       </div>
 
-      <!-- Appointment Details Section -->
-      <div class="form-section">
-        <h3>Appointment Details</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="preferredDate">Preferred Date *</label>
+      <!-- Step 3: Appointment Details -->
+      <div v-show="currentStep === 3" class="card p-6 md:p-8">
+        <h2 class="text-xl md:text-2xl font-semibold text-secondary-900 mb-6 flex items-center">
+          <span class="text-2xl mr-3">📅</span>
+          Appointment Details
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Preferred Date *</label>
             <input
-              id="preferredDate"
               v-model="formData.preferredDate"
               type="date"
               required
               :min="minDate"
-              :class="{ error: errors.preferredDate }"
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.preferredDate }"
             />
-            <span v-if="errors.preferredDate" class="error-message">{{ errors.preferredDate }}</span>
+            <p v-if="errors.preferredDate" class="mt-1 text-sm text-red-600">{{ errors.preferredDate }}</p>
           </div>
-          <div class="form-group">
-            <label for="preferredTime">Preferred Time *</label>
-            <select id="preferredTime" v-model="formData.preferredTime" required :class="{ error: errors.preferredTime }">
-              <option value="">Select Time Slot</option>
+
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Preferred Time *</label>
+            <select 
+              v-model="formData.preferredTime" 
+              required 
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.preferredTime }"
+            >
+              <option value="">Select time slot</option>
               <option value="08:00-09:00">8:00 AM - 9:00 AM</option>
               <option value="09:00-10:00">9:00 AM - 10:00 AM</option>
               <option value="10:00-11:00">10:00 AM - 11:00 AM</option>
@@ -177,111 +227,207 @@
               <option value="15:00-16:00">3:00 PM - 4:00 PM</option>
               <option value="16:00-17:00">4:00 PM - 5:00 PM</option>
             </select>
-            <span v-if="errors.preferredTime" class="error-message">{{ errors.preferredTime }}</span>
+            <p v-if="errors.preferredTime" class="mt-1 text-sm text-red-600">{{ errors.preferredTime }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Purpose *</label>
+            <select 
+              v-model="formData.purpose" 
+              required 
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.purpose }"
+            >
+              <option value="">Select purpose</option>
+              <option value="Employment">Employment</option>
+              <option value="Business Permit">Business Permit</option>
+              <option value="Loan Application">Loan Application</option>
+              <option value="School Requirement">School Requirement</option>
+              <option value="Travel">Travel</option>
+              <option value="Other">Other</option>
+            </select>
+            <p v-if="errors.purpose" class="mt-1 text-sm text-red-600">{{ errors.purpose }}</p>
+          </div>
+
+          <div v-if="formData.purpose === 'Other'">
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Specify Purpose *</label>
+            <input
+              v-model="formData.otherPurpose"
+              type="text"
+              required
+              class="input-field"
+              :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.otherPurpose }"
+              placeholder="Please specify the purpose"
+            />
+            <p v-if="errors.otherPurpose" class="mt-1 text-sm text-red-600">{{ errors.otherPurpose }}</p>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-secondary-700 mb-2">Special Notes/Requirements</label>
+            <textarea
+              v-model="formData.specialNotes"
+              rows="3"
+              class="input-field resize-none"
+              placeholder="Any special requirements or notes for your appointment (optional)"
+            ></textarea>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="purpose">Purpose of Clearance *</label>
-          <select id="purpose" v-model="formData.purpose" required :class="{ error: errors.purpose }">
-            <option value="">Select Purpose</option>
-            <option value="Employment">Employment</option>
-            <option value="Business Permit">Business Permit</option>
-            <option value="Loan Application">Loan Application</option>
-            <option value="School Requirement">School Requirement</option>
-            <option value="Travel/Visa">Travel/Visa</option>
-            <option value="Insurance">Insurance</option>
-            <option value="Others">Others</option>
-          </select>
-          <span v-if="errors.purpose" class="error-message">{{ errors.purpose }}</span>
-        </div>
-
-        <div v-if="formData.purpose === 'Others'" class="form-group">
-          <label for="otherPurpose">Please Specify *</label>
-          <input
-            id="otherPurpose"
-            v-model="formData.otherPurpose"
-            type="text"
-            required
-            :class="{ error: errors.otherPurpose }"
-            placeholder="Please specify the purpose"
-          />
-          <span v-if="errors.otherPurpose" class="error-message">{{ errors.otherPurpose }}</span>
-        </div>
-
-        <div class="form-group">
-          <label for="specialNotes">Special Notes/Requests</label>
-          <textarea
-            id="specialNotes"
-            v-model="formData.specialNotes"
-            placeholder="Any special requests or additional information"
-            rows="3"
-          ></textarea>
-        </div>
-      </div>
-
-      <!-- Terms and Conditions -->
-      <div class="form-section">
-        <div class="checkbox-group">
-          <label class="checkbox-label">
+        <!-- Terms and Conditions -->
+        <div class="mt-8 p-4 bg-secondary-50 rounded-lg border border-secondary-200">
+          <div class="flex items-start space-x-3">
             <input
-              type="checkbox"
               v-model="formData.agreeToTerms"
+              type="checkbox"
+              id="terms"
               required
+              class="mt-1 w-4 h-4 text-primary-600 border-secondary-300 rounded focus:ring-primary-500"
+              :class="{ 'border-red-500': errors.agreeToTerms }"
             />
-            <span class="checkmark"></span>
-            I agree to the <a href="#" @click.prevent="showTerms = true">terms and conditions</a> and acknowledge that the information provided is accurate *
-          </label>
-          <span v-if="errors.agreeToTerms" class="error-message">{{ errors.agreeToTerms }}</span>
+            <label for="terms" class="text-sm text-secondary-700 leading-relaxed">
+              I agree to the 
+              <button 
+                type="button" 
+                @click="showTermsModal = true"
+                class="text-primary-600 hover:text-primary-700 underline font-medium"
+              >
+                terms and conditions
+              </button>
+              and confirm that all information provided is accurate and complete.
+            </label>
+          </div>
+          <p v-if="errors.agreeToTerms" class="mt-2 text-sm text-red-600">{{ errors.agreeToTerms }}</p>
         </div>
       </div>
 
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <button type="button" @click="resetForm" class="btn btn-secondary">Reset</button>
-        <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
-          {{ isSubmitting ? 'Submitting...' : 'Submit Appointment' }}
+      <!-- Navigation Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-between">
+        <button
+          v-if="currentStep > 1"
+          type="button"
+          @click="prevStep"
+          class="btn-secondary flex items-center justify-center space-x-2 order-2 sm:order-1"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          <span>Previous</span>
         </button>
+
+        <div class="flex space-x-4 order-1 sm:order-2">
+          <button
+            v-if="currentStep < 3"
+            type="button"
+            @click="nextStep"
+            :disabled="!isStepValid"
+            class="btn-primary flex items-center justify-center space-x-2 flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span>Next</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+
+          <button
+            v-if="currentStep === 3"
+            type="submit"
+            :disabled="!isStepValid || isSubmitting"
+            class="btn-primary flex items-center justify-center space-x-2 flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="isSubmitting" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ isSubmitting ? 'Submitting...' : 'Submit Application' }}</span>
+          </button>
+        </div>
       </div>
     </form>
 
-    <!-- Success Message -->
-    <div v-if="showSuccess" class="success-message">
-      <h3>✓ Appointment Submitted Successfully!</h3>
-      <p>Your appointment reference number is: <strong>{{ referenceNumber }}</strong></p>
-      <p>Please save this reference number for your records. You will receive a confirmation message shortly.</p>
-    </div>
-
-    <!-- Terms Modal (simplified) -->
-    <div v-if="showTerms" class="modal-overlay" @click="showTerms = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h3>Terms and Conditions</h3>
-          <button @click="showTerms = false" class="close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>By submitting this appointment request, you agree to:</p>
-          <ul>
-            <li>Provide accurate and truthful information</li>
-            <li>Arrive on time for your scheduled appointment</li>
-            <li>Bring valid identification and required documents</li>
-            <li>Follow barangay health and safety protocols</li>
-            <li>Understand that false information may result in cancellation</li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button @click="showTerms = false" class="btn btn-primary">I Understand</button>
+    <!-- Terms Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-300 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showTermsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+          <div class="p-6 border-b border-secondary-200">
+            <h3 class="text-xl font-semibold text-secondary-900">Terms and Conditions</h3>
+          </div>
+          <div class="p-6 overflow-y-auto max-h-96 space-y-4 text-sm text-secondary-700 leading-relaxed">
+            <p><strong>1. Appointment Scheduling:</strong> All appointments are subject to availability and confirmation by the barangay office.</p>
+            <p><strong>2. Required Documents:</strong> Please bring valid ID and any supporting documents related to your clearance request.</p>
+            <p><strong>3. Appointment Changes:</strong> Any changes to your appointment must be made at least 24 hours in advance.</p>
+            <p><strong>4. Processing Time:</strong> Standard processing time is 1-3 business days depending on the purpose.</p>
+            <p><strong>5. Privacy Policy:</strong> Your personal information will be used solely for processing your clearance and will not be shared with third parties.</p>
+            <p><strong>6. Cancellation:</strong> No-show appointments may result in a temporary restriction on future bookings.</p>
+          </div>
+          <div class="p-6 border-t border-secondary-200 flex justify-end">
+            <button
+              @click="showTermsModal = false"
+              class="btn-primary"
+            >
+              I Understand
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
+
+    <!-- Success Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-300 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div v-if="showSuccessModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full">
+          <div class="p-8 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-secondary-900 mb-2">Application Submitted Successfully!</h3>
+            <p class="text-secondary-600 mb-6">Your appointment has been submitted and is being processed.</p>
+            
+            <div class="bg-secondary-50 rounded-lg p-4 mb-6">
+              <h4 class="font-semibold text-secondary-900 mb-2">Reference Number</h4>
+              <p class="text-lg font-mono text-primary-600 font-bold">{{ submittedData?.referenceNumber }}</p>
+              <p class="text-sm text-secondary-600 mt-2">Please save this reference number for tracking your appointment.</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button @click="closeSuccessModal" class="btn-secondary flex-1">
+                Submit Another
+              </button>
+              <router-link to="/track-appointment" @click="closeSuccessModal" class="btn-primary flex-1 text-center">
+                Track Status
+              </router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
+
+// Emits
+const emit = defineEmits(['appointment-submitted'])
 
 // Form data
 const formData = reactive({
+  // Personal Information
   firstName: '',
   lastName: '',
   middleName: '',
@@ -290,130 +436,141 @@ const formData = reactive({
   gender: '',
   civilStatus: '',
   nationality: 'Filipino',
+  
+  // Contact Information
   phoneNumber: '',
   email: '',
   address: '',
+  
+  // Appointment Details
   preferredDate: '',
   preferredTime: '',
   purpose: '',
   otherPurpose: '',
   specialNotes: '',
+  
+  // Terms and Conditions
   agreeToTerms: false
 })
 
 // Form state
+const currentStep = ref(1)
 const errors = reactive({})
 const isSubmitting = ref(false)
-const showSuccess = ref(false)
-const showTerms = ref(false)
-const referenceNumber = ref('')
+const showTermsModal = ref(false)
+const showSuccessModal = ref(false)
+const submittedData = ref(null)
 
-// Computed properties
+// Validation rules
+const validateStep = (step) => {
+  const stepErrors = {}
+  
+  if (step === 1) {
+    if (!formData.firstName.trim()) stepErrors.firstName = 'First name is required'
+    if (!formData.lastName.trim()) stepErrors.lastName = 'Last name is required'
+    if (!formData.birthDate) stepErrors.birthDate = 'Birth date is required'
+    if (!formData.gender) stepErrors.gender = 'Gender is required'
+    if (!formData.civilStatus) stepErrors.civilStatus = 'Civil status is required'
+  }
+  
+  if (step === 2) {
+    if (!formData.phoneNumber.trim()) stepErrors.phoneNumber = 'Phone number is required'
+    if (!formData.email.trim()) stepErrors.email = 'Email is required'
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) stepErrors.email = 'Invalid email format'
+    if (!formData.address.trim()) stepErrors.address = 'Address is required'
+  }
+  
+  if (step === 3) {
+    if (!formData.preferredDate) stepErrors.preferredDate = 'Preferred date is required'
+    if (!formData.preferredTime) stepErrors.preferredTime = 'Preferred time is required'
+    if (!formData.purpose) stepErrors.purpose = 'Purpose is required'
+    if (formData.purpose === 'Other' && !formData.otherPurpose.trim()) {
+      stepErrors.otherPurpose = 'Please specify the purpose'
+    }
+    if (!formData.agreeToTerms) stepErrors.agreeToTerms = 'You must agree to the terms and conditions'
+  }
+  
+  return stepErrors
+}
+
+// Computed
+const isStepValid = computed(() => {
+  const stepErrors = validateStep(currentStep.value)
+  return Object.keys(stepErrors).length === 0
+})
+
+const formProgress = computed(() => {
+  return Math.round((currentStep.value / 3) * 100)
+})
+
 const minDate = computed(() => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   return tomorrow.toISOString().split('T')[0]
 })
 
-// Validation functions
-const validateForm = () => {
-  // Clear previous errors
+// Methods
+const nextStep = () => {
+  const stepErrors = validateStep(currentStep.value)
   Object.keys(errors).forEach(key => delete errors[key])
-
-  let isValid = true
-
-  // Required field validation
-  const requiredFields = {
-    firstName: 'First name is required',
-    lastName: 'Last name is required',
-    birthDate: 'Date of birth is required',
-    gender: 'Gender is required',
-    civilStatus: 'Civil status is required',
-    nationality: 'Nationality is required',
-    phoneNumber: 'Phone number is required',
-    address: 'Address is required',
-    preferredDate: 'Preferred date is required',
-    preferredTime: 'Preferred time is required',
-    purpose: 'Purpose is required'
+  Object.assign(errors, stepErrors)
+  
+  if (Object.keys(stepErrors).length === 0) {
+    currentStep.value++
   }
-
-  Object.entries(requiredFields).forEach(([field, message]) => {
-    if (!formData[field] || formData[field].trim() === '') {
-      errors[field] = message
-      isValid = false
-    }
-  })
-
-  // Special validations
-  if (formData.purpose === 'Others' && (!formData.otherPurpose || formData.otherPurpose.trim() === '')) {
-    errors.otherPurpose = 'Please specify the purpose'
-    isValid = false
-  }
-
-  if (!formData.agreeToTerms) {
-    errors.agreeToTerms = 'You must agree to the terms and conditions'
-    isValid = false
-  }
-
-  // Phone number validation
-  if (formData.phoneNumber && !/^09\d{9}$/.test(formData.phoneNumber)) {
-    errors.phoneNumber = 'Phone number must be in format 09XXXXXXXXX'
-    isValid = false
-  }
-
-  // Date validation
-  if (formData.preferredDate) {
-    const selectedDate = new Date(formData.preferredDate)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    if (selectedDate <= today) {
-      errors.preferredDate = 'Please select a future date'
-      isValid = false
-    }
-  }
-
-  return isValid
 }
 
-// Generate reference number
+const prevStep = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--
+    Object.keys(errors).forEach(key => delete errors[key])
+  }
+}
+
 const generateReferenceNumber = () => {
-  const prefix = 'BCA'
-  const timestamp = Date.now().toString().slice(-6)
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-  return `${prefix}${timestamp}${random}`
+  return `BCA${year}${month}${day}${random}`
 }
 
-// Form submission
 const submitForm = async () => {
-  if (!validateForm()) {
-    return
-  }
-
-  isSubmitting.value = true
-
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+  const stepErrors = validateStep(3)
+  Object.keys(errors).forEach(key => delete errors[key])
+  Object.assign(errors, stepErrors)
+  
+  if (Object.keys(stepErrors).length === 0) {
+    isSubmitting.value = true
     
-    // Generate reference number
-    referenceNumber.value = generateReferenceNumber()
-    
-    // Show success message
-    showSuccess.value = true
-    
-    // Scroll to top to show success message
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    
-  } catch (error) {
-    console.error('Error submitting appointment:', error)
-    alert('An error occurred while submitting your appointment. Please try again.')
-  } finally {
-    isSubmitting.value = false
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const referenceNumber = generateReferenceNumber()
+      const appointmentData = { ...formData }
+      
+      submittedData.value = {
+        referenceNumber,
+        appointmentData
+      }
+      
+      emit('appointment-submitted', {
+        referenceNumber,
+        appointmentData
+      })
+      
+      showSuccessModal.value = true
+      
+    } catch (error) {
+      console.error('Submission error:', error)
+    } finally {
+      isSubmitting.value = false
+    }
   }
 }
 
-// Reset form
 const resetForm = () => {
   Object.keys(formData).forEach(key => {
     if (typeof formData[key] === 'boolean') {
@@ -422,25 +579,16 @@ const resetForm = () => {
       formData[key] = ''
     }
   })
-  formData.nationality = 'Filipino' // Reset to default
+  formData.nationality = 'Filipino'
+  currentStep.value = 1
   Object.keys(errors).forEach(key => delete errors[key])
-  showSuccess.value = false
+  showSuccessModal.value = false
 }
 
-// Emit events (for parent component communication)
-const emit = defineEmits(['appointment-submitted'])
-
-// Watch for successful submission to emit event
-const onSubmissionSuccess = () => {
-  emit('appointment-submitted', {
-    referenceNumber: referenceNumber.value,
-    appointmentData: { ...formData }
-  })
+const closeSuccessModal = () => {
+  showSuccessModal.value = false
+  resetForm()
 }
-
-onMounted(() => {
-  // Any initialization logic
-})
 </script>
 
 <style scoped>

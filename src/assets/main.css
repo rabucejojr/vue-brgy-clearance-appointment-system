@@ -1,35 +1,85 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
-}
-
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+/* Custom component classes using Tailwind */
+@layer components {
+  .notification-slide-in {
+    @apply animate-slide-in-right;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-200 hover:bg-secondary-300 text-secondary-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-lg border border-secondary-200;
+  }
+  
+  .notification-success {
+    @apply bg-gradient-to-r from-green-500 to-emerald-500 text-white;
+  }
+  
+  .notification-error {
+    @apply bg-gradient-to-r from-red-500 to-red-600 text-white;
+  }
+  
+  .notification-warning {
+    @apply bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900;
+  }
+  
+  .notification-info {
+    @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white;
   }
 }
 
-@media (min-width: 1024px) {
+/* Base layer customizations */
+@layer base {
+  html {
+    @apply antialiased;
+    scroll-behavior: smooth;
+  }
+  
   body {
-    display: flex;
-    place-items: center;
+    @apply bg-gradient-to-br from-slate-50 to-blue-100 min-h-screen;
+    background-attachment: fixed;
   }
+  
+  h1 { @apply text-3xl md:text-4xl lg:text-5xl font-semibold; }
+  h2 { @apply text-2xl md:text-3xl lg:text-4xl font-semibold; }
+  h3 { @apply text-xl md:text-2xl lg:text-3xl font-semibold; }
+  h4 { @apply text-lg md:text-xl lg:text-2xl font-semibold; }
+  h5 { @apply text-base md:text-lg lg:text-xl font-semibold; }
+  h6 { @apply text-sm md:text-base lg:text-lg font-semibold; }
+  
+  p {
+    @apply text-sm md:text-base leading-relaxed;
+  }
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+/* Utility overrides */
+@layer utilities {
+  .container-full {
+    @apply w-full px-2 sm:px-4 md:px-6 lg:px-8 xl:px-10;
+  }
+  
+  .text-responsive {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+  
+  .bg-app {
+    @apply bg-gradient-to-br from-slate-50 to-blue-100;
+  }
+  
+  .shadow-card {
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
   }
 }
